@@ -33,3 +33,13 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('poll', 'question', 'user_id', 'answer')
         model = Answer
+
+
+class UserAnswerSerializer(serializers.ModelSerializer):
+
+    poll = serializers.ReadOnlyField(source='poll.title')
+    question = serializers.ReadOnlyField(source='question.title')
+
+    class Meta:
+        fields = ('poll', 'question', 'answer')
+        model = Answer
