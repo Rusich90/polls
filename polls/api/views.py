@@ -3,18 +3,25 @@ from .serializers import PollSerializer, QuestionSerializer, ChoiceSerializer, A
 from .models import Poll, Question, Answer, Choice
 from rest_framework.response import Response
 from datetime import date
+from .permissions import AdminPermission
 
 
 class PollViewSet(viewsets.ModelViewSet):
-    today = date.today()
-    queryset = Poll.objects.filter(start_date__lte=today, end_date__gte=today)
     serializer_class = PollSerializer
     pagination_class = pagination.PageNumberPagination
+    permission_classes = [AdminPermission]
+
+    def get_queryset(self):
+        today = date.today()
+        if self.request.user.is_superuser:
+            return Poll.objects.all()
+        return Poll.objects.filter(start_date__lte=today, end_date__gte=today)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     pagination_class = pagination.PageNumberPagination
+    permission_classes = [AdminPermission]
 
     def get_queryset(self):
         return Question.objects.filter(
@@ -28,6 +35,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class ChoiceViewSet(viewsets.ModelViewSet):
     serializer_class = ChoiceSerializer
     pagination_class = pagination.PageNumberPagination
+    permission_classes = [AdminPermission]
 
     def get_queryset(self):
         return Choice.objects.filter(

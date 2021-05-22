@@ -3,7 +3,7 @@ from .views import PollViewSet, QuestionViewSet, ChoiceViewSet, AnswerViewSet, U
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register('polls', PollViewSet)
+router.register('polls', PollViewSet, basename='polls')
 router.register(r'polls/(?P<poll_id>\d+)/questions',
                 QuestionViewSet,
                 basename='questions'),
