@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Poll, Question, AnswerChoices
+from .models import Poll, Question, Choice, Answer
 
 
 class PollSerializer(serializers.ModelSerializer):
@@ -9,36 +9,27 @@ class PollSerializer(serializers.ModelSerializer):
         model = Poll
 
 
-class AnswerChoicesSerializer(serializers.ModelSerializer):
+class ChoiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'text')
-        read_only_fields = ('id',)
-        model = AnswerChoices
+        model = Choice
 
 
 class QuestionSerializer(serializers.ModelSerializer):
 
-    answer_choices = AnswerChoicesSerializer(many=True, required=False)
+    choice = ChoiceSerializer(many=True, required=False)
 
     class Meta:
+        fields = ('id', 'poll', 'title', 'type', 'choice')
         model = Question
-        fields = ('id', 'poll', 'title', 'type', 'answer_choices')
-        read_only_fields = ('id', )
-        extra_kwargs = {
-            'poll': {'write_only': True}
-        }
 
 
-    def create_answers(self, question, answer_choices):
-        # AnswerChoices.objects.create(question=question, answer_choices=answer_choices)
-        AnswerChoices.objects.bulk_create([
-            AnswerChoices(question=question, **d) for d in answer_choices
-        ])
+class AnswerSerializer(serializers.ModelSerializer):
 
-    def create(self, validated_data):
-        print(validated_data)
-        answers = validated_data.pop('answer_choices', [])
-        question = Question.objects.create(**validated_data)
-        self.create_answers(question, answers)
-        return question
+    poll = serializers.ReadOnlyField(source='poll.title')
+    question = serializers.ReadOnlyField(source='question.title')
+
+    class Meta:
+        fields = ('poll', 'question', 'user_id', 'answer')
+        model = Answer

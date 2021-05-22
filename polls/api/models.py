@@ -33,7 +33,15 @@ class Question(models.Model):
         return self.title
 
 
-class AnswerChoices(models.Model):
+class Choice(models.Model):
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name='answer_choices')
+        Question, on_delete=models.CASCADE, related_name='choice')
     text = models.CharField(max_length=256)
+
+
+class Answer(models.Model):
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    user_id = models.IntegerField()
+    question = models.ForeignKey(
+        Question, on_delete=models.CASCADE, related_name='user_answer')
+    answer = models.CharField(max_length=256)
