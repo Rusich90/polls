@@ -1,8 +1,4 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-
-User = get_user_model()
 
 
 class Poll(models.Model):
@@ -41,15 +37,21 @@ class Choice(models.Model):
         Question, on_delete=models.CASCADE, related_name='choice')
     text = models.CharField(max_length=256)
 
+    def __str__(self):
+        return self.text
+
     class Meta:
         ordering = ["id"]
 
 
 class Answer(models.Model):
-    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='answer')
+    poll = models.ForeignKey(
+        Poll, on_delete=models.CASCADE, related_name='answer'
+    )
     user_id = models.IntegerField()
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name='answer')
+        Question, on_delete=models.CASCADE, related_name='answer'
+    )
     answer = models.CharField(max_length=256)
 
     class Meta:

@@ -1,5 +1,6 @@
 from rest_framework import viewsets, pagination, status, generics
-from .serializers import PollSerializer, QuestionSerializer, ChoiceSerializer, AnswerSerializer, UserAnswerSerializer
+from .serializers import (PollSerializer, QuestionSerializer, ChoiceSerializer,
+                          AnswerSerializer, UserAnswerSerializer)
 from .models import Poll, Question, Answer, Choice
 from rest_framework.response import Response
 from datetime import date
@@ -43,7 +44,9 @@ class ChoiceViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
-        serializer.save(question=Question.objects.get(id=self.kwargs['question_id']))
+        serializer.save(
+            question=Question.objects.get(id=self.kwargs['question_id'])
+        )
 
 
 class AnswerViewSet(viewsets.ModelViewSet):
@@ -52,10 +55,6 @@ class AnswerViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def perform_create(self, serializer):
-        serializer.save(question=Question.objects.get(id=self.kwargs['question_id']),
-                        poll=Poll.objects.get(id=self.kwargs['poll_id']))
 
 
 class UserPollsListView(generics.ListAPIView):
