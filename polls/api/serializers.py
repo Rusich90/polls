@@ -22,7 +22,6 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 class QuestionSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         fields = ('id', 'poll', 'title', 'type', 'choice')
         model = Question

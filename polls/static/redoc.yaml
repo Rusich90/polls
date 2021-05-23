@@ -1,0 +1,865 @@
+openapi: 3.0.2
+info:
+  title: 'PollsAPI'
+  version: 1.0.0
+  description: |
+    запросы к API начинаются с `/api/v1/`
+
+    # Описание
+    Polls - API ресурс для создания и проведения опросов
+
+    # Алгоритм авторизации админа
+
+    - Админ отправляет запрос с параметрами `username` и `password` на `/token/`, в ответе на запрос ему приходит `token` (JWT-токен).
+
+    # Пользовательские роли
+    - **Аноним** — может просматривать активные опросы и проходить их
+    - **Администратор Django** — полные права на управление опросами.
+
+
+servers:
+  - url: /api/v1/
+
+tags:
+  - name: TOKEN
+    description: Получение JWT Токена
+  - name: POLLS
+    description: Создание опросов
+  - name: QUESTIONS
+    description: Создание вопросов
+  - name: CHOICES
+    description: Создание вариантов ответа на вопрос
+  - name: ANSWERS
+    description: Прохождение опроса
+  - name: USER-ANSWERS
+    description: Просмотр пройденных опросов
+
+paths:
+  /polls/:
+    get:
+      tags:
+        - POLLS
+      operationId: Список опросов
+      description: 'Для админа список всех опросов, для юзеров - только активные опросы'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Poll'
+          description: ''
+    post:
+      operationId: Создание опроса
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Poll'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+      tags:
+        - POLLS
+      security:
+      - jwt_auth:
+        - write:admin
+  /polls/{id}/:
+    get:
+      tags:
+        - POLLS
+      operationId: Информация по опросу
+      description: 'Информация опроса'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+    put:
+      operationId: Изменение опроса
+      description: 'Дату начала опроса изменить нельзя'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Poll'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+      tags:
+        - POLLS
+      security:
+      - jwt_auth:
+        - write:admin
+    patch:
+      operationId: Изменение опроса
+      description: 'Дату начала опроса изменить нельзя'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Poll'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Poll'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+      tags:
+        - POLLS
+      security:
+      - jwt_auth:
+        - write:admin
+    delete:
+      operationId: Удаление опроса
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - POLLS
+      security:
+      - jwt_auth:
+        - write:admin
+  polls/{poll_id}/questions/:
+    get:
+      tags:
+        - QUESTIONS
+      operationId: Список вопросов
+      description: 'Список вопросов'
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Question'
+          description: ''
+    post:
+      operationId: Создание вопросов
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: ''
+      tags:
+        - QUESTIONS
+      security:
+      - jwt_auth:
+        - write:admin
+  /polls/{poll_id}/questions/{id}/:
+    get:
+      operationId: Информация по вопросу
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: ''
+      tags:
+        - QUESTIONS
+    put:
+      operationId: Изменение вопроса
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: ''
+      tags:
+        - QUESTIONS
+      security:
+      - jwt_auth:
+        - write:admin
+    patch:
+      operationId: Изменение вопроса
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Question'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Question'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Question'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+          description: ''
+      tags:
+        - QUESTIONS
+      security:
+      - jwt_auth:
+        - write:admin
+    delete:
+      operationId: Удаление вопроса
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - QUESTIONS
+      security:
+      - jwt_auth:
+        - write:admin
+  /polls/{poll_id}/questions/{question_id}/choices/:
+    get:
+      operationId: Варианты ответов на вопрос
+      description: 'Варианты ответов на вопрос'
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Choice'
+          description: ''
+      tags:
+        - CHOICES
+    post:
+      operationId: Создание вариантов ответов на вопрос
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Choice'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Choice'
+          description: ''
+      tags:
+        - CHOICES
+      security:
+      - jwt_auth:
+        - write:admin
+  /polls/{poll_id}/questions/{question_id}/choices/{id}/:
+    get:
+      operationId: Детализация варианта ответа на вопрос
+      description: 'Детализация варианта ответа на вопрос'
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Choice'
+          description: ''
+      tags:
+        - CHOICES
+    put:
+      operationId: Изменение варианта ответа на вопрос
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Choice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Choice'
+          description: ''
+      tags:
+        - CHOICES
+      security:
+      - jwt_auth:
+        - write:admin
+    patch:
+      operationId: Изменение варианта ответа на вопрос
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Choice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Choice'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Choice'
+          description: ''
+      tags:
+        - CHOICES
+      security:
+      - jwt_auth:
+        - write:admin
+    delete:
+      operationId: Удаление варианта ответа на вопрос
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - CHOICES
+      security:
+      - jwt_auth:
+        - write:admin
+  /polls/{poll_id}/questions/{question_id}/answers/:
+    post:
+      operationId: Пройти опрос
+      description: ''
+      parameters:
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: question_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Answer'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Answer'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Answer'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Answer'
+          description: ''
+      tags:
+        - ANSWERS
+  /user-answers/{user_id}/:
+    get:
+      operationId: Список пройденных опросов по user_id
+      description: ''
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Poll'
+          description: ''
+      tags:
+        - USER-ANSWERS
+  /user-answers/{user_id}/{poll_id}/:
+    get:
+      operationId: Список ответов на вопросы по id опроса
+      description: ''
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      - name: poll_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAnswer'
+          description: ''
+      tags:
+        - USER-ANSWERS
+  /token/:
+    post:
+      operationId: Получение Token
+      description: 'Takes a set of user credentials and returns an access and refresh
+        JSON web
+
+        token pair to prove the authentication of those credentials.'
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+      tags:
+        - TOKEN
+components:
+  schemas:
+    Poll:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+      required:
+      - title
+      - description
+      - start_date
+      - end_date
+    Question:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        poll:
+          type: integer
+        title:
+          type: string
+        type:
+          enum:
+          - text
+          - single_choice
+          - multiple_choice
+          type: string
+        choice:
+          type: array
+          items:
+            type: integer
+      required:
+      - poll
+      - title
+      - type
+      - choice
+    Choice:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 256
+      required:
+      - text
+    Answer:
+      type: object
+      properties:
+        poll:
+          type: string
+          readOnly: true
+        question:
+          type: string
+          readOnly: true
+        user_id:
+          type: integer
+        answer:
+          type: string
+          maxLength: 256
+      required:
+      - user_id
+      - answer
+    UserAnswer:
+      type: object
+      properties:
+        question:
+          type: string
+          readOnly: true
+        answer:
+          type: string
+          maxLength: 256
+      required:
+      - answer
+    TokenObtainPair:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - username
+      - password
+
+  securitySchemes:
+    jwt_auth:
+      type: apiKey
+      name: Bearer
+      in: header
