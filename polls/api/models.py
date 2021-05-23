@@ -29,6 +29,9 @@ class Question(models.Model):
     title = models.TextField()
     type = models.CharField(choices=TYPE_QUESTION, max_length=20)
 
+    class Meta:
+        ordering = ["id"]
+
     def __str__(self):
         return self.title
 
@@ -38,10 +41,16 @@ class Choice(models.Model):
         Question, on_delete=models.CASCADE, related_name='choice')
     text = models.CharField(max_length=256)
 
+    class Meta:
+        ordering = ["id"]
+
 
 class Answer(models.Model):
-    poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='answer')
     user_id = models.IntegerField()
     question = models.ForeignKey(
-        Question, on_delete=models.CASCADE, related_name='user_answer')
+        Question, on_delete=models.CASCADE, related_name='answer')
     answer = models.CharField(max_length=256)
+
+    class Meta:
+        ordering = ["id"]

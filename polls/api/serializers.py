@@ -3,6 +3,10 @@ from .models import Poll, Question, Choice, Answer
 
 
 class PollSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance is not None:
+            self.fields.get('start_date').read_only = True
 
     class Meta:
         fields = ('id', 'title', 'description', 'start_date', 'end_date')
@@ -37,9 +41,8 @@ class AnswerSerializer(serializers.ModelSerializer):
 
 class UserAnswerSerializer(serializers.ModelSerializer):
 
-    poll = serializers.ReadOnlyField(source='poll.title')
     question = serializers.ReadOnlyField(source='question.title')
 
     class Meta:
-        fields = ('poll', 'question', 'answer')
+        fields = ('question', 'answer')
         model = Answer

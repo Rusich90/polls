@@ -58,6 +58,16 @@ class AnswerViewSet(viewsets.ModelViewSet):
                         poll=Poll.objects.get(id=self.kwargs['poll_id']))
 
 
+class UserPollsListView(generics.ListAPIView):
+    serializer_class = PollSerializer
+    pagination_class = pagination.PageNumberPagination
+
+    def get_queryset(self):
+        return Poll.objects.filter(
+            answer__user_id=self.kwargs['user_id']
+        ).distinct()
+
+
 class UserAnswersListView(generics.ListAPIView):
     serializer_class = UserAnswerSerializer
     pagination_class = pagination.PageNumberPagination
