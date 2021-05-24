@@ -14,6 +14,7 @@ class PollViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         today = date.today()
+        # Если запрос от админа, то показать все опросы, иначе только активные
         if self.request.user.is_superuser:
             return Poll.objects.all()
         return Poll.objects.filter(start_date__lte=today, end_date__gte=today)

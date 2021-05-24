@@ -5,6 +5,7 @@ from .models import Poll, Question, Choice, Answer
 class PollSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Если опрос уже создан, то изменять дату начала нельзя
         if self.instance is not None:
             self.fields.get('start_date').read_only = True
 
